@@ -32,9 +32,7 @@ a{color:var(--acc);text-decoration:none}
 
 .topbar{display:flex;align-items:center;gap:14px;padding:14px 16px;border-bottom:1px solid var(--ln)}
 .wordmark{font-weight:800;font-size:18px;letter-spacing:.18em;display:flex;align-items:center;gap:10px;flex:1}
-.logo{display:inline-flex;gap:2px;align-items:flex-end;height:16px}
-.logo i{display:block;width:4px;background:var(--acc)}
-.logo i:nth-child(1){height:10px}.logo i:nth-child(2){height:16px}.logo i:nth-child(3){height:12px}.logo i:nth-child(4){height:16px}
+.logo{color:var(--acc);font-weight:400;letter-spacing:0;font-size:.95em;line-height:1}
 .status{display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.15em;color:var(--dim)}
 .dot{width:7px;height:7px;background:var(--dim);border-radius:50%}
 .dot.live{background:var(--ok);animation:blinkdot 1.6s infinite}
