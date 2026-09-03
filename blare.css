@@ -1,0 +1,230 @@
+/* Blare web — the iOS player's look, token for token.
+   Every colour is a theme token; the themes are the same eleven as the app. */
+:root{
+  --bg0:#0b0a10;--bg:#151320;--pn:#1b1824;--fg:#ececf1;--dim:#8a8a95;--ln:#2e2b38;
+  --acc:#3dff7f;--acc2:#ffd400;--ok:#3dff7f;--warn:#ffd400;--err:#ff3d9a;
+  --rowpad:10px;--cellw:7px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg0);color:var(--fg);overflow-x:hidden}
+body{font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.35;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+input{font:inherit;color:inherit}
+a{color:var(--acc);text-decoration:none}
+.hidden{display:none!important}
+.dim{color:var(--dim)}.acc{color:var(--acc)}.acc2{color:var(--acc2)}.warn{color:var(--warn)}.ok{color:var(--ok)}.err{color:var(--err)}
+.center{text-align:center}
+.label{font-size:9px;letter-spacing:.2em;color:var(--dim)}
+
+.page{min-height:100vh;display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;align-content:start;gap:12px;padding:16px}
+.ad-side{display:none}
+@media (min-width:1100px){
+  .page{grid-template-columns:434px 300px;justify-content:center;column-gap:24px}
+  .ad-leaderboard{grid-column:1/2;grid-row:1;align-self:start}
+  .phone{grid-column:1/2;grid-row:2}
+  .ad-side{display:flex;grid-column:2/3;grid-row:2;align-self:start;position:sticky;top:16px}
+}
+
+/* ---- the phone column ---- */
+.phone{width:100%;max-width:434px;min-height:calc(100vh - 32px);background:var(--bg);border:1px solid var(--ln);display:flex;flex-direction:column;position:relative;overflow:hidden}
+.phone.scan::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.14) 0 1px,transparent 1px 3px)}
+.phone.compact{--rowpad:6px}
+
+.topbar{display:flex;align-items:center;gap:14px;padding:14px 16px;border-bottom:1px solid var(--ln)}
+.wordmark{font-weight:800;font-size:18px;letter-spacing:.18em;display:flex;align-items:center;gap:10px;flex:1}
+.logo{display:inline-flex;gap:2px;align-items:flex-end;height:16px}
+.logo i{display:block;width:4px;background:var(--acc)}
+.logo i:nth-child(1){height:10px}.logo i:nth-child(2){height:16px}.logo i:nth-child(3){height:12px}.logo i:nth-child(4){height:16px}
+.status{display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.15em;color:var(--dim)}
+.dot{width:7px;height:7px;background:var(--dim);border-radius:50%}
+.dot.live{background:var(--ok);animation:blinkdot 1.6s infinite}
+@keyframes blinkdot{0%,60%{opacity:1}61%,100%{opacity:.15}}
+.icon{font-size:14px;color:var(--acc)}
+#settingsBtn{color:var(--dim)}
+
+.screen{display:flex;flex-direction:column;gap:10px;padding:14px 16px;flex:1}
+
+/* ---- station card ---- */
+.card{border:1px solid var(--ln)}
+.card-head{display:flex;align-items:center;gap:10px;padding:12px 12px 6px}
+.station-name{flex:1;color:var(--acc);font-weight:800;letter-spacing:.12em;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kind{color:var(--dim);font-size:11px}
+.star{color:var(--dim);font-size:14px}.star.on{color:var(--acc2)}
+.title-line{padding:6px 12px;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.title-line.none{color:var(--dim)}
+.title-line .note{color:var(--acc)}
+.meta-line{display:flex;justify-content:space-between;padding:0 12px 10px;font-size:11px;color:var(--dim);border-bottom:1px solid var(--ln)}
+#playstate.on{color:var(--ok)}
+.spectrum{padding:10px 10px 6px}
+#spec{display:block;width:100%;height:150px}
+.caption{padding:0 12px 6px;font-size:9px;letter-spacing:.18em;color:var(--dim)}
+.caption.live{color:var(--ok)}.caption.pattern{color:var(--warn)}
+.stream-line{display:flex;justify-content:space-between;padding:4px 12px 12px;font-size:11px;letter-spacing:.1em}
+
+/* ---- vis slider ---- */
+.vis{display:flex;align-items:center;gap:12px;border:1px solid var(--ln);padding:12px}
+.segments{flex:1;display:flex;gap:2px;height:12px;cursor:pointer}
+.segments i{flex:1;background:var(--pn);border:1px solid var(--ln)}
+.segments i.on{background:var(--acc);border-color:var(--acc)}
+.mode{font-weight:700;letter-spacing:.12em;font-size:12px;min-width:6ch;text-align:right}
+.vis-icon{color:var(--dim)}
+
+/* ---- transport ---- */
+.transport{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.tbtn{border:1px solid var(--ln);padding:16px 0;font-size:13px;letter-spacing:.2em;font-weight:500}
+.tbtn.play{background:var(--acc);color:var(--bg0);font-size:20px;border-color:var(--acc)}
+.volume{display:flex;align-items:center;gap:12px;border:1px solid var(--ln);padding:8px 12px}
+.volume input{flex:1;accent-color:var(--acc)}
+
+/* ---- list ---- */
+.list-box{border:1px solid var(--ln)}
+.list-head{display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid var(--ln);font-size:11px;letter-spacing:.1em}
+.src{color:var(--acc);letter-spacing:.15em;font-weight:700;border-left:1px solid var(--ln);padding-left:12px}
+.rows{list-style:none;margin:0;padding:0}
+.rows li{display:flex;align-items:center;gap:10px;padding:var(--rowpad) 12px;border-bottom:1px solid var(--ln);cursor:pointer;min-height:44px}
+.rows li:last-child{border-bottom:0}
+.rows li .mark{width:12px;color:var(--acc)}
+.rows li .idx{color:var(--dim);min-width:3ch;text-align:right}
+.rows li .name{flex:1;font-weight:700;letter-spacing:.08em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase}
+.rows li .sub{display:block;font-weight:400;color:var(--dim);font-size:10px;letter-spacing:.06em}
+.rows li.cur .name{color:var(--acc)}
+.rows li .np{width:8px;height:8px;border-radius:50%;background:var(--ln)}
+.rows li.cur .np{background:var(--ok)}
+.rows li .fav{color:var(--dim)}.rows li .fav.on{color:var(--acc2)}
+.rows li .meta{color:var(--dim);font-size:11px;white-space:nowrap}
+.open-all{width:100%;padding:12px;color:var(--acc);letter-spacing:.15em;font-weight:700;border-top:1px solid var(--ln)}
+
+/* ---- lib ---- */
+.search{display:flex;align-items:center;gap:10px;border:1px solid var(--acc);padding:12px}
+.search input{flex:1;background:none;border:0;outline:0;font-size:16px;letter-spacing:.08em;text-transform:uppercase}
+.search input::placeholder{color:var(--dim)}
+.chips{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--ln);padding:8px 12px;letter-spacing:.12em;font-size:11px;color:var(--acc)}
+.chip.on{background:var(--acc);color:var(--bg0);border-color:var(--acc)}
+.col-head{display:flex;justify-content:space-between;font-size:9px;letter-spacing:.2em;color:var(--dim);padding:0 12px}
+.rows.lib{border:1px solid var(--ln)}
+
+/* ---- settings ---- */
+.themes{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.theme{border:1px solid var(--ln);padding:10px;text-align:left;display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.1em}
+.theme.on{border-color:var(--acc)}
+.theme .sw{display:flex;gap:2px}.theme .sw i{width:8px;height:14px;display:block}
+.about{font-size:11px;line-height:1.5;border:1px solid var(--ln);padding:12px}
+.store{display:block;border:1px solid var(--acc);padding:14px;text-align:center;letter-spacing:.15em;font-weight:700}
+
+/* ---- tabs ---- */
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--ln);background:var(--pn)}
+.tab{padding:12px 0 14px;font-size:9px;letter-spacing:.25em;color:var(--dim);display:flex;flex-direction:column;gap:6px;align-items:center}
+.tab span{font-size:14px}
+.tab.on{color:var(--acc)}
+.tab.on::before{content:"";display:block;width:60%;height:2px;background:var(--acc);margin:-12px 0 4px}
+
+/* ---- ad slots ----
+   Reserved at IAB sizes so a network creative drops in without a reflow.
+   Dashed border + AD badge: the reader always knows what this box is. */
+.ad{border:1px dashed var(--ln);color:var(--fg);position:relative;display:flex;align-items:center;justify-content:center;text-align:left}
+.ad-leaderboard{width:100%;max-width:434px;height:90px}
+.ad-inline{min-height:72px}
+.ad-side{width:300px;min-height:600px}
+.ad .badge{position:absolute;top:6px;left:8px;font-size:9px;letter-spacing:.2em;color:var(--dim);border:1px solid var(--dim);padding:2px 5px}
+.ad a.house{display:flex;flex-direction:column;gap:3px;padding:22px 12px 12px;width:100%;color:inherit}
+.ad-side a.house{justify-content:center;height:600px;padding:12px 16px;gap:10px}
+.ad .kicker{font-size:9px;letter-spacing:.18em;color:var(--dim)}
+.ad .title{font-weight:700;font-size:13px}
+.ad .line{font-size:11px;color:var(--dim)}
+.ad .cta{color:var(--acc);font-size:11px;letter-spacing:.12em;margin-top:6px}
+
+/* Leaderboard: 90px tall, so the house ad reads as one row, not a stack. */
+.ad-leaderboard a.house{flex-direction:row;align-items:center;flex-wrap:wrap;gap:4px 14px;padding:10px 12px 10px 52px;height:90px}
+.ad-leaderboard .kicker{width:100%}
+.ad-leaderboard .line{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ad-leaderboard .cta{margin:0}
+
+.ad a.house.has-image{padding:0;align-items:center;justify-content:center}
+.ad a.house img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.ad-leaderboard a.house.has-image img{height:90px}
+.ad-side a.house.has-image img{height:600px;width:300px}
+.ad-inline a.house.has-image img{height:72px}
+
+/* ---- screens added for parity with the iOS app ---- */
+.icon.dim{color:var(--dim)}
+.box{border:1px solid var(--ln);padding:10px 12px;font-size:12px}
+.note{font-size:11px;line-height:1.5}
+.scope{font-size:9px;letter-spacing:.18em;line-height:1.6}
+.panel{border:1px solid var(--acc);background:var(--pn);padding:14px 12px;display:flex;flex-direction:column;gap:8px}
+.panel .tag{font-size:10px;letter-spacing:.2em;color:var(--acc)}
+.panel .track{font-size:17px;font-weight:700;line-height:1.35}
+.panel .why{color:var(--warn);font-size:12px;line-height:1.5;border-top:1px solid var(--ln);padding-top:8px}
+.panel .hop{border:1px solid var(--acc);color:var(--acc);padding:14px;font-weight:700;letter-spacing:.1em;width:100%}
+.filter{font-size:10px;letter-spacing:.1em;color:var(--dim);display:flex;gap:6px;align-items:center;min-height:32px;cursor:pointer}
+.filter.on{color:var(--acc2)}
+.seg2{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--ln)}
+.segbtn{padding:14px;letter-spacing:.15em;font-weight:700;color:var(--dim)}
+.segbtn.on{background:var(--acc);color:var(--bg0)}
+.chips .chip.acc2{color:var(--acc2)}
+.chips .chip.acc2.on{background:var(--acc2);color:var(--bg0);border-color:var(--acc2)}
+.chips.wrap{flex-wrap:wrap}
+.legend{font-size:9px;letter-spacing:.12em;line-height:1.6;padding:0 12px 6px}
+.rows li.sug{flex-direction:column;align-items:stretch;gap:4px}
+.rows li .reason{font-weight:400;color:var(--dim);font-size:11px}
+.rows li .tune{color:var(--acc);font-weight:700;letter-spacing:.15em;padding:8px 12px;border:1px solid var(--ln)}
+.zero{border:1px solid var(--ln);padding:16px 12px;display:flex;flex-direction:column;gap:6px}
+.zero .big{font-size:40px;font-weight:700;color:var(--dim)}
+.zero .tier{font-size:12px;color:var(--dim);white-space:pre}
+.zero .msg{font-size:15px;font-weight:700}
+.watch{border:1px solid var(--ln);padding:12px;display:flex;align-items:center;gap:10px}
+.watch .name{flex:1;font-weight:700;letter-spacing:.08em}
+.watch .st{border:1px solid var(--ln);color:var(--dim);padding:6px 10px;font-size:11px;letter-spacing:.1em}
+.globe-box{position:relative;height:420px;border:1px solid var(--ln);background:var(--pn)}
+#globe{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
+.globe-zoom{position:absolute;right:8px;bottom:8px;display:flex;flex-direction:column;gap:6px}
+.globe-zoom button{width:44px;height:44px;background:var(--bg);border:1px solid var(--ln);color:var(--fg);font-size:18px}
+.station-card{border:1px solid var(--acc);background:var(--pn);padding:12px;display:flex;flex-direction:column;gap:6px}
+.station-card .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.station-card .name{font-weight:800;letter-spacing:.1em;color:var(--acc)}
+.station-card .btns{display:flex;gap:8px;margin-top:4px}
+.station-card .btns button{border:1px solid var(--ln);padding:10px 14px;letter-spacing:.12em;color:var(--acc);font-weight:700}
+.custom{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.custom label{display:flex;flex-direction:column;gap:4px;font-size:9px;letter-spacing:.15em;color:var(--dim)}
+.custom input[type=color]{width:100%;height:36px;border:1px solid var(--ln);background:none;padding:0}
+.search .chip{margin-left:8px}
+.sw{display:flex;gap:2px}.sw i{width:8px;height:14px;display:block}
+
+/* ---- landscape stage ---- */
+.stage{position:fixed;inset:0;background:var(--bg);z-index:50;display:flex;flex-direction:column;justify-content:space-between;padding:16px 26px 14px;overflow:hidden}
+#stageSpec{position:absolute;inset:0;width:100%;height:100%}
+.stage-scrim{position:absolute;inset:0;background:linear-gradient(180deg,var(--bg) 0%,transparent 30%,transparent 48%,var(--bg) 96%);opacity:.9;pointer-events:none}
+.stage-top,.stage-mid,.stage-bottom{position:relative}
+.wordmark.small{font-size:13px}
+.stage-station{color:var(--acc);letter-spacing:.15em;font-weight:700;margin-top:6px}
+.stage-caption{font-size:9px;letter-spacing:.18em;color:var(--dim);margin-top:4px}
+.stage-title{font-size:30px;font-weight:800;letter-spacing:.02em;line-height:1.15;text-shadow:0 0 12px var(--bg)}
+.stage.xl .stage-title{font-size:44px}
+.stage-sub{color:var(--dim);font-size:13px;margin-top:6px}
+.stage-bottom{display:flex;gap:10px;align-items:center}
+.stage-bottom .tbtn{padding:12px 16px;min-width:64px}
+.stage-opts{position:absolute;top:62px;right:16px;width:290px;background:var(--bg);border:1px solid var(--acc);padding:12px;display:flex;flex-direction:column;gap:10px;z-index:2}
+.stage-opts .label{margin-bottom:4px}
+.stage.no-scrim .stage-scrim{display:none}
+.stage.no-controls .stage-bottom{visibility:hidden}
+
+/* Country chips: the flag as a faded backdrop, the name on top. Emoji flags
+   need no assets; opacity keeps them in the palette's register. */
+.chip.flagged{position:relative;overflow:hidden;isolation:isolate}
+.chip.flagged::before{content:attr(data-flag);position:absolute;right:-4px;top:50%;transform:translateY(-50%);font-size:28px;line-height:1;opacity:.18;filter:saturate(.7);z-index:-1;pointer-events:none}
+.chip.flagged.on::before{opacity:.35}
+
+/* ---- legal / support documents ---- */
+.doc{width:100%;max-width:640px;background:var(--bg);border:1px solid var(--ln);padding:0 0 24px;margin:0 auto}
+.doc .topbar .wordmark a{color:var(--fg)}
+.doc-body{padding:18px 20px;display:flex;flex-direction:column;gap:14px;font-size:12.5px;line-height:1.55}
+.doc h1{font-size:15px;letter-spacing:.18em;color:var(--acc);margin:0;font-weight:800}
+.doc h2{font-size:10px;letter-spacing:.2em;color:var(--dim);margin:12px 0 0;font-weight:500;border-bottom:1px solid var(--ln);padding-bottom:4px}
+.doc p,.doc li{margin:0}
+.doc ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px}
+.doc table{border-collapse:collapse;width:100%;font-size:12px}
+.doc th,.doc td{text-align:left;padding:6px 8px;border:1px solid var(--ln);vertical-align:top}
+.doc th{color:var(--dim);font-weight:500;letter-spacing:.1em;font-size:10px}
+.doc-nav{display:flex;gap:14px;padding:12px 20px;border-top:1px solid var(--ln);font-size:11px;letter-spacing:.12em}
+.doc-nav a.on{color:var(--fg)}
+.footer-links{margin-top:6px}.footer-links a{margin-right:12px}

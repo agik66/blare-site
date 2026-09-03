@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — Blare</title>
+<meta name="description" content="How Blare (iOS app and web player) handles data: no accounts, no analytics, no tracking. What stays on your device and which third parties see your IP address.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="blare.css">
+</head>
+<body>
+<div class="page">
+  <main class="doc">
+    <header class="topbar">
+      <div class="wordmark"><a href="./">BLARE</a> <span class="logo" aria-hidden="true"><i></i><i></i><i></i><i></i></span></div>
+      <div class="status"><span class="dot"></span><span>PRIVACY</span></div>
+    </header>
+    <nav class="doc-nav">
+      <a href="./">◂ BLARE</a>
+      <a href="privacy.html" class="on">PRIVACY</a>
+      <a href="terms.html">TERMS</a>
+      <a href="support.html">SUPPORT</a>
+    </nav>
+    <article class="doc-body">
+<h1>PRIVACY POLICY</h1>
+<p class="dim">Effective 3 September 2026 · applies to the Blare iOS app and the Blare web player</p>
+
+<p>Blare is an internet-radio player. It has no user accounts, no analytics, no advertising SDKs and no tracking. We do not collect, store or sell personal data. This page lists everything the software keeps and everyone it talks to, so you can check the claim.</p>
+
+<h2>WHAT STAYS ON YOUR DEVICE</h2>
+<p>The following is stored only locally (iOS app: on the phone; web: in your browser's local storage) and is never sent to us:</p>
+<ul>
+  <li>starred stations, listening history and the MIX filter,</li>
+  <li>settings: theme, visualiser mode, equaliser presets, layout options,</li>
+  <li>a cached copy of the house-ad list and of the station catalog,</li>
+  <li>on iOS, a cached flag saying whether the ad-free purchase is owned.</li>
+</ul>
+<p>Deleting the app, or clearing site data in the browser, removes all of it. There is no export to a server and no sync.</p>
+
+<h2>WHO SEES YOUR IP ADDRESS</h2>
+<p>Playing a stream is a direct connection from your device to the station. That is how internet radio works and we cannot change it. Each of the parties below receives your IP address and standard connection metadata when the software contacts them:</p>
+<table>
+  <tr><th>Party</th><th>When</th><th>Why</th></tr>
+  <tr><td>The radio station you tune</td><td>While a station plays</td><td>Delivers the audio stream and its “now playing” text</td></tr>
+  <tr><td>Station websites (favicons)</td><td>When a station is shown</td><td>The station's own logo is loaded from its site</td></tr>
+  <tr><td>GitHub (raw.githubusercontent.com)</td><td>At launch and roughly every few hours</td><td>Downloads the list of house ads (a small JSON file)</td></tr>
+  <tr><td>Apple</td><td>iOS only, when you buy or restore “Remove ads”</td><td>In-app purchase via StoreKit; Apple's own privacy policy applies</td></tr>
+  <tr><td>Google Fonts, jsDelivr</td><td>Web only, on page load</td><td>Delivers the typeface and the globe library</td></tr>
+  <tr><td>Google AdSense</td><td>Web only, and only if paid ad units are enabled in the ad manifest</td><td>Serves paid ads and may set cookies; see “Advertising”</td></tr>
+</table>
+<p>We do not run a server of our own: nothing you do is logged by us.</p>
+
+<h2>ADVERTISING</h2>
+<p>The boxes marked AD show the developer's own products (“house ads”). They are plain images listed in a public JSON file; showing them sends no data anywhere except the request that downloads that file and the image.</p>
+<p>On the web player the manifest can additionally enable Google AdSense units. When that is on, Google serves the ad and may use cookies or similar identifiers under its own policy (policies.google.com/technologies/ads). When it is off, no Google code is loaded. The iOS app does not contain AdSense or any other ad network.</p>
+<p>On iOS a one-time purchase, “Remove ads”, hides every ad box. The purchase is handled entirely by Apple; we receive no name, e-mail or payment detail, only the anonymous receipt Apple gives the app.</p>
+
+<h2>SIRI, CARPLAY AND SHORTCUTS</h2>
+<p>Siri and Shortcuts commands (“play a station”, “play my favourites”, “next”, “stop”) run on the device through Apple's App Intents. Station names you speak are processed by Apple as part of Siri; the app only receives the chosen station. CarPlay mirrors the same local data.</p>
+
+<h2>MICROPHONE, LOCATION, CONTACTS</h2>
+<p>None. The visualiser analyses the audio of the stream being played, not the microphone. The station globe uses the station's published coordinates, not your location.</p>
+
+<h2>CHILDREN</h2>
+<p>Blare is not directed at children and collects no data from anyone, of any age.</p>
+
+<h2>YOUR RIGHTS (GDPR)</h2>
+<p>Because we hold no personal data about you, there is nothing for us to access, correct, export or erase. Everything the software keeps is under your control on your own device. If you believe we do hold something, write to the address on the Support page and we will answer within 30 days.</p>
+
+<h2>CHANGES</h2>
+<p>If this policy changes, the new version is published here with a new effective date. The app links to this page.</p>
+
+<h2>CONTROLLER</h2>
+<p>Erik Michalec (Syenit), Slovakia — contact on the <a href="support.html">Support</a> page.</p>
+    </article>
+    <nav class="doc-nav">
+      <a href="privacy.html">PRIVACY</a><a href="terms.html">TERMS</a><a href="support.html">SUPPORT</a>
+    </nav>
+  </main>
+</div>
+</body>
+</html>
