@@ -107,15 +107,32 @@ class Monitor {
 }
 
 // ---------------------------------------------------------------- generated pattern
-// For when the stream cannot be read. Capped at 0.70 so it can never fill
-// the panel the way a real hit does; no heat, no ghost, no markers.
-const PATTERN_CEILING = 0.70;
+// For when the stream cannot be read. It has to *move* like music — a beat,
+// a bass-heavy shape, columns that jump on their own — while staying capped
+// at 0.86 and captioned as generated, so it never passes for the real thing.
+const PATTERN_CEILING = 0.86;
+const patState = { cols: new Float64Array(COLS), beatAt: 0, bpm: 118, nextKick: 0.6, fillAt: 0, seed: 1 };
+const prand = () => { patState.seed = (patState.seed * 1664525 + 1013904223) >>> 0; return patState.seed / 4294967296; };
 function patternTargets(t) {
-  const out = new Float64Array(COLS);
+  const st = patState, out = new Float64Array(COLS);
+  const beatLen = 60 / st.bpm;
+  if (t >= st.nextKick) {                       // a kick, sometimes a double, with a wandering tempo
+    st.beatAt = t; st.nextKick = t + beatLen * (prand() < 0.12 ? 0.5 : 1);
+    if (prand() < 0.05) st.bpm = 96 + prand() * 50;
+    if (prand() < 0.22) st.fillAt = t;          // a hat/snare fill lights the top end for a moment
+  }
+  const kick = Math.exp(-(t - st.beatAt) * 7), fill = Math.exp(-(t - st.fillAt) * 9);
+  const swell = 0.5 + 0.5 * Math.sin(t * 0.35);                                   // slow dynamics
   for (let i = 0; i < COLS; i++) {
     const x = i / (COLS - 1);
-    const v = 0.35 + 0.18 * Math.sin(t * 1.3 + x * 5.1) + 0.12 * Math.sin(t * 0.7 - x * 9.3) + 0.08 * Math.sin(t * 2.1 + x * 2.2);
-    out[i] = Math.min(PATTERN_CEILING, Math.max(REST, v * (1 - 0.35 * x)));
+    const shape = 0.62 - 0.42 * x + 0.10 * Math.sin(t * 0.9 + x * 7.0);           // bass heavy, breathing
+    const kickPart = kick * (1 - x) * (1 - x) * 0.55;
+    const fillPart = fill * x * x * 0.5;
+    const noise = (prand() - 0.5) * 0.14;
+    // each column also random-walks so no two frames read the same
+    st.cols[i] = Math.max(-0.12, Math.min(0.12, st.cols[i] + (prand() - 0.5) * 0.06));
+    const v = (0.20 + 0.55 * swell) * shape + kickPart + fillPart + noise + st.cols[i];
+    out[i] = Math.min(PATTERN_CEILING, Math.max(REST, v));
   }
   return out;
 }
@@ -139,7 +156,7 @@ class ReedField {
       this.lastKind = kind;
     }
     if (kind === 'silent') this.stepSilent(dt);
-    else if (kind === 'pattern') this.follow(target, 0.25, 0.25, frames);
+    else if (kind === 'pattern') this.follow(target, 0.55, 0.30, frames);
     else this.follow(target, 1.0, 0.20, frames);
     this.stepHeat(kind, dt); this.stepLattice(dt); this.stepGhost(kind, dt); this.stepPeaks(kind, dt);
   }
