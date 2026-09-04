@@ -346,20 +346,35 @@ function tuneStation(st, list) {
   if (!l.some(x => x.u === st.u)) l.unshift(st);
   S.queue = l; tune(l.findIndex(x => x.u === st.u));
 }
-function play(withCors) {
+// The edge relay (Cloudflare Worker, repo Blare_edge). Empty = not deployed:
+// then http:// streams stay blocked on https pages and stations without CORS
+// get the generated pattern. Set after `wrangler deploy`.
+const EDGE_BASE = (window.BLARE_EDGE || '').replace(/\/$/, '');
+const viaEdge = (u) => EDGE_BASE ? EDGE_BASE + '/s?u=' + encodeURIComponent(u) : null;
+// One anonymous listen event per station per page load. No id, no cookie;
+// the relay reads the country from the connection and stores only that.
+const pinged = new Set();
+function pingListen(st) {
+  if (!EDGE_BASE || !st || !st.uuid || pinged.has(st.uuid)) return; pinged.add(st.uuid);
+  try { fetch(EDGE_BASE + '/ping', { method: 'POST', body: JSON.stringify({ s: st.uuid, p: 'web' }), headers: { 'content-type': 'application/json' }, keepalive: true, mode: 'cors' }).catch(() => {}); } catch (e) {}
+}
+function play(withCors, viaRelay) {
   const st = current(); if (!st) return;
   // A page served over HTTPS may not fetch an http:// stream — the browser
   // blocks it as mixed content and never even connects. Say so instead of
   // pretending to try; the fix is a proxy, not a retry.
-  if (location.protocol === 'https:' && /^http:\/\//i.test(st.u)) {
+  if (location.protocol === 'https:' && /^http:\/\//i.test(st.u) && !viaEdge(st.u)) {
     S.playing = false; S.source = 'silent'; S.blockedReason = 'HTTP STREAM';
     S.streamState = '———— HTTP STREAM · BLOCKED ON A HTTPS PAGE ————'; emit(); return;
   }
   if (!S.ctx) { const AC = window.AudioContext || window.webkitAudioContext; S.ctx = new AC(); }
   if (S.ctx.state === 'suspended') S.ctx.resume();
   const a = new Audio(); a.preload = 'none';
+  const mustRelay = location.protocol === 'https:' && /^http:\/\//i.test(st.u);
+  const useRelay = !!viaEdge(st.u) && (viaRelay || mustRelay);
   const cors = withCors && S.analyse;
   if (cors) a.crossOrigin = 'anonymous';
+  S.relayed = useRelay;
   a.volume = S.vol / 100; S.audio = a; S.monitor.reset();
   let settled = false;
   a.addEventListener('playing', () => {
@@ -373,15 +388,18 @@ function play(withCors) {
         S.analyser = new Analyzer(S.ctx, an); S.source = 'measured'; S.blockedReason = '';
       } catch (e) { S.source = 'pattern'; S.blockedReason = 'ANALYSER UNAVAILABLE'; }
     } else { S.source = 'pattern'; S.blockedReason = S.analyse ? 'STREAM BLOCKS FFT (NO CORS)' : 'ANALYSIS OFF IN SETTINGS'; }
-    logStation(st); emit();
+    logStation(st); pingListen(st); emit();
   });
   a.addEventListener('error', () => {
     if (settled) { S.playing = false; S.source = 'silent'; S.streamState = '———— STREAM ENDED ————'; emit(); return; }
     settled = true;
-    if (cors) play(false); else { S.playing = false; S.source = 'silent'; S.streamState = '———— CANNOT PLAY THIS STREAM ————'; emit(); }
+    if (cors && !useRelay && viaEdge(st.u)) play(true, true);      // the station refused CORS: try through the relay, FFT intact
+    else if (cors) play(false);                                    // no relay (or relay failed): play direct, pattern instead of FFT
+    else if (!useRelay && viaEdge(st.u)) play(false, true);        // direct failed outright: last try through the relay
+    else { S.playing = false; S.source = 'silent'; S.streamState = '———— CANNOT PLAY THIS STREAM ————'; emit(); }
   });
   a.addEventListener('stalled', () => { if (S.playing) { S.streamState = '———— BUFFERING ————'; emit(); } });
-  a.src = st.u; S.streamState = '———— CONNECTING ————';
+  a.src = useRelay ? viaEdge(st.u) : st.u; S.streamState = useRelay ? '———— CONNECTING · VIA RELAY ————' : '———— CONNECTING ————';
   a.play().catch(() => {});
   emit();
   if ('mediaSession' in navigator) {
