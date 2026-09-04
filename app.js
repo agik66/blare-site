@@ -55,15 +55,47 @@ function fillAds() {
   });
 }
 async function loadAds() {
-  try { const c = JSON.parse(localStorage.getItem('blare-ads')); if (c && c.version === 1 && c.ads?.length) { ADS = c.ads; NETWORKS = c.web_networks || null; } } catch (e) {}
+  const meta = (m) => { if (m && m.web_interstitial) window.__ads_meta = { web_interstitial: m.web_interstitial }; };
+  try { const c = JSON.parse(localStorage.getItem('blare-ads')); if (c && c.version === 1 && c.ads?.length) { ADS = c.ads; NETWORKS = c.web_networks || null; meta(c); } } catch (e) {}
   fillAds();
+  let fresh = false;
   try {
-    const r = await fetch(ADS_URL, { cache: 'no-store' }); if (!r.ok) return;
-    const m = await r.json(); if (m.version !== 1 || !m.ads?.length) return;
-    ADS = m.ads; NETWORKS = m.web_networks || null;
-    try { localStorage.setItem('blare-ads', JSON.stringify(m)); } catch (e) {}
-    fillAds();
+    const r = await fetch(ADS_URL, { cache: 'no-store' });
+    if (r.ok) {
+      const m = await r.json();
+      if (m.version === 1 && m.ads?.length) {
+        ADS = m.ads; NETWORKS = m.web_networks || null; meta(m); fresh = true;
+        try { localStorage.setItem('blare-ads', JSON.stringify(m)); } catch (e) {}
+        fillAds();
+      }
+    }
   } catch (e) {}
+  showGate();
+}
+
+// ================================================================ interstitial
+// One full-page house ad when the page is opened — the web has no "Remove
+// ads" purchase, and a box under the player alone is easy to ignore. It is
+// labelled AD, closes on its own countdown, and comes back only after
+// `web_interstitial.every_minutes` (manifest), default 30.
+function showGate() {
+  const cfg = (window.__ads_meta && window.__ads_meta.web_interstitial) || {};
+  if (cfg.enabled === false || /[?&]nogate\b/.test(location.search)) return; // nogate: screenshots and tests
+  const every = (cfg.every_minutes ?? 30) * 60000, countdown = Math.max(0, cfg.countdown ?? 5);
+  let last = 0; try { last = +localStorage.getItem('blare-gate') || 0; } catch (e) {}
+  if (Date.now() - last < every) return;
+  let ad = pickAd('web-interstitial', 7); if (!ad) ad = pickAd('web-leaderboard', 7); if (!ad) return;
+  const img = ad.creative && ad.creative.wide && ad.creative.wide.image;
+  const el = document.createElement('div'); el.className = 'gate'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Advertisement');
+  el.innerHTML = `<div class="gate-box"><span class="badge">AD</span>
+    <a class="house${img ? ' has-image' : ''}" href="${esc(ad.url)}" target="_blank" rel="noopener sponsored">${img ? `<img src="${esc(img)}" alt="${esc(ad.title)}">` : `<span class="kicker">${esc(ad.kicker)}</span><span class="title">${esc(ad.title)}</span><span class="line">${esc(ad.line)}</span><span class="cta">${esc(ad.cta || 'OPEN ↗')}</span>`}</a>
+    <div class="gate-foot"><span>THE iOS APP SELLS AN AD-FREE PURCHASE · THE WEB PLAYER STAYS FREE WITH ADS</span><button type="button" id="gateBtn">CONTINUE IN ${countdown}</button></div></div>`;
+  document.body.appendChild(el);
+  const btn = el.querySelector('#gateBtn'); let left = countdown;
+  const close = () => { el.remove(); try { localStorage.setItem('blare-gate', String(Date.now())); } catch (e) {} };
+  const arm = () => { btn.textContent = 'CONTINUE ▸'; btn.classList.add('ready'); btn.onclick = close; };
+  const tick = () => { left--; if (left <= 0) arm(); else { btn.textContent = `CONTINUE IN ${left}`; setTimeout(tick, 1000); } };
+  if (countdown === 0) arm(); else setTimeout(tick, 1000);
 }
 
 function flag(cc) { if (!/^[A-Z]{2}$/.test(cc || '')) return ''; return String.fromCodePoint(...[...cc].map(c => 0x1F1E6 + c.charCodeAt(0) - 65)); }

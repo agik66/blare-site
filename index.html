@@ -8,12 +8,30 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="blare.css?v=1788503715">
+<link rel="stylesheet" href="site.css?v=1788505000">
+<link rel="stylesheet" href="blare.css?v=1788505000">
 <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js" defer></script>
 </head>
 <body>
-<div class="page">
+<nav class="site-nav">
+  <div class="wordmark">BLARE <span class="logo" aria-hidden="true">▞▞▞</span></div>
+  <span class="path">~/radio</span>
+  <div class="links">
+    <a href="#player">[player]</a><a href="#features">[features]</a><a href="#stations">[stations]</a><a href="#ios-app">[app]</a><a href="#privacy">[privacy]</a>
+  </div>
+</nav>
+<header class="hero">
+  <div class="eyebrow">~/RADIO/BLARE · INTERNET RADIO, TERMINAL STYLE</div>
+  <h1>A radio that shows you <b>the signal.</b></h1>
+  <p class="lead">Blare tunes 8,000+ internet stations, prints what the station says is playing, and draws a real spectrum of the audio you hear. Nothing is faked: when a station publishes no title, Blare says so. This page runs the same player as the iPhone app.</p>
+  <div class="cta">
+    <a class="btn primary" href="#player">▶ PLAY IN THE BROWSER</a>
+    <a class="btn ghost" href="#ios-app">iPHONE · iPAD APP — SUBMITTED, NOT YET LIVE</a>
+  </div>
+  <div class="chips"><span><b id="statStations">8,335</b> STATIONS</span><span>REAL FFT, NOT AN ANIMATION</span><span>NO ACCOUNT</span><span>NO TRACKING</span><span>FREE</span></div>
+</header>
+<div class="page" id="player">
 
   <aside class="ad ad-leaderboard" data-slot="web-leaderboard" aria-label="Advertisement" hidden></aside>
 
@@ -176,7 +194,54 @@
     <div class="stage-opts hidden" id="stageOpts"></div>
   </div>
 </div>
-<script src="blare.js?v=1788503715"></script>
-<script src="app.js?v=1788503715"></script>
+<section class="sec" id="features">
+  <div class="sec-head"><span class="num">[01]</span><h2>./<em>features</em></h2><span class="rule"></span></div>
+  <div class="grid">
+    <div class="card"><span class="tag">WEB · iOS</span><h3>PLAY</h3><p>The station, its live title, and a 16-band FFT of the stream in six visualiser modes: matrix, bars, mirror, dots, scope, ASCII. The caption tells you when a stream cannot be measured.</p></div>
+    <div class="card"><span class="tag">WEB · iOS</span><h3>FIND</h3><p>Type an artist and see which stations have been playing them, built from what stations reported over time. The iOS app adds a live tier that watches the station you are on.</p></div>
+    <div class="card"><span class="tag">WEB · iOS</span><h3>MIX</h3><p>An auto-tuner. It hops stations, optionally inside a genre or a country, and tells you why it picked each one.</p></div>
+    <div class="card"><span class="tag">WEB · iOS</span><h3>LIB</h3><p>The catalog by genre and country, with flags, and a globe of every station that has a coordinate. Drag to spin, pinch to zoom.</p></div>
+    <div class="card"><span class="tag">WEB · iOS</span><h3>HIST</h3><p>What you heard and where. Save a track so it survives the rolling log; saved tracks export as a playlist.</p></div>
+    <div class="card"><span class="tag">WEB · iOS</span><h3>THEMES</h3><p>Nine bundled palettes from Tokyo Night to Rosé Pine Dawn, four more compiled in, generators, and a custom theme you can share as a code.</p></div>
+    <div class="card"><span class="tag ios">iOS ONLY</span><h3>EQUALISER</h3><p>Ten bands, ±12 dB, presets and your own saved curves. The web player has no EQ; browsers do not expose the decoded stream the same way.</p></div>
+    <div class="card"><span class="tag ios">iOS ONLY</span><h3>SIRI · SHORTCUTS</h3><p>“Play Rádio Rock in Blare”, “Play my favourites”, “Next station”, “Stop”. On iOS 16.4 and newer.</p></div>
+    <div class="card"><span class="tag">WEB · iOS</span><h3>SHARE A STATION LIST</h3><p>Copy your starred stations or your theme as a Blare-code and paste it on another device. No account involved.</p></div>
+  </div>
+</section>
+
+<section class="sec" id="stations">
+  <div class="sec-head"><span class="num">[02]</span><h2>./<em>stations</em></h2><span class="rule"></span></div>
+  <div class="stats">
+    <div class="stat"><b id="stStations">—</b><span>STATIONS IN THE CATALOG</span></div>
+    <div class="stat"><b id="stCountries">—</b><span>COUNTRIES</span></div>
+    <div class="stat"><b id="stNP">—</b><span>PUBLISH “NOW PLAYING”</span></div>
+    <div class="stat"><b id="stHttps">—</b><span>PLAY ON THIS HTTPS PAGE</span></div>
+  </div>
+  <div class="countries" id="stTop"></div>
+  <p class="app-note">The directory is compiled from Radio Browser and public station metadata. Stations go off-air and move; the player shows the failure it got from the server instead of guessing. Browsers refuse http:// streams on an https page, so a part of the catalog plays only in the iOS app until a proxy exists.</p>
+</section>
+
+<section class="sec" id="ios-app">
+  <div class="sec-head"><span class="num">[03]</span><h2>./<em>the-app</em></h2><span class="rule"></span></div>
+  <div class="shots">
+    <figure><img src="img/shot-play.png" alt="Blare on iPhone: PLAY screen with a live spectrum" loading="lazy"><figcaption>iPHONE · PLAY</figcaption></figure>
+    <figure><img src="img/shot-find.png" alt="Blare on iPhone: FIND results for Depeche Mode" loading="lazy"><figcaption>iPHONE · FIND</figcaption></figure>
+    <figure><img src="img/shot-globe.png" alt="Blare on iPhone: the station globe" loading="lazy"><figcaption>iPHONE · GLOBE</figcaption></figure>
+  </div>
+  <p class="app-note">Blare for iPhone and iPad runs on iOS 15 and newer, down to the iPhone 7 and the iPad Air 2. It is free; small boxes carry the developer's own products, and a one-time purchase removes them. The App Store listing is submitted and not yet live — this line changes to a link the day it is.</p>
+</section>
+
+<section class="sec" id="privacy">
+  <div class="sec-head"><span class="num">[04]</span><h2>./<em>privacy</em></h2><span class="rule"></span></div>
+  <div class="term"><span class="p">$</span> blare --privacy<br><span class="c"># no accounts · no analytics · no tracking SDKs</span><br>starred, history, settings ... <span class="p">on your device only</span><br>your IP address ........... <span class="p">seen by the station you play</span> (that is how streaming works)<br>house ads ................. <span class="p">a JSON file on GitHub</span>, images, no cookies<br>paid ads (web only) ....... <span class="p">off</span> unless the manifest turns AdSense on<br><span class="c"># full text:</span> <a href="privacy.html">privacy.html</a> · <a href="terms.html">terms.html</a> · <a href="support.html">support.html</a></div>
+</section>
+
+<footer class="site-foot">
+  <div>BLARE ▞▞▞ · ERIK MICHALEC (SYENIT) · SLOVAKIA</div>
+  <div><a href="privacy.html">PRIVACY</a><a href="terms.html">TERMS</a><a href="support.html">SUPPORT</a><a href="https://agik66.github.io/blare-site/">MIRROR</a></div>
+</footer>
+<script src="blare.js?v=1788505000"></script>
+<script src="app.js?v=1788505000"></script>
+<script src="site.js?v=1788505000"></script>
 </body>
 </html>

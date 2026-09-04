@@ -1,0 +1,63 @@
+/* Blare site chrome around the player: nav, hero, numbered sections.
+   The player itself (.page / .phone) is untouched — same tokens, same look. */
+.site-nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;gap:18px;padding:10px 20px;background:color-mix(in srgb,var(--bg0) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--ln);font-size:11px;letter-spacing:.12em}
+.site-nav .wordmark{font-size:14px;flex:0 0 auto}
+.site-nav .path{color:var(--dim);flex:1}
+.site-nav a{color:var(--dim)}.site-nav a:hover,.site-nav a.on{color:var(--acc)}
+.site-nav .links{display:flex;gap:14px;flex-wrap:wrap;justify-content:flex-end}
+.hero{max-width:1100px;margin:0 auto;padding:104px 20px 28px;display:grid;grid-template-columns:1fr;gap:18px}
+.hero .eyebrow{font-size:10px;letter-spacing:.24em;color:var(--dim)}
+.hero h1{margin:0;font-size:clamp(28px,5vw,54px);line-height:1.05;letter-spacing:.04em;font-weight:800;color:var(--fg)}
+.hero h1 b{color:var(--acc);font-weight:800}
+.hero p.lead{margin:0;max-width:640px;font-size:14px;line-height:1.6;color:var(--fg)}
+.hero .cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border:1px solid var(--acc);color:var(--acc);font-size:12px;letter-spacing:.14em;font-weight:700}
+.btn.primary{background:var(--acc);color:var(--bg0)}
+.btn.ghost{border-color:var(--ln);color:var(--dim)}
+.hero .chips{display:flex;gap:8px;flex-wrap:wrap;font-size:10px;letter-spacing:.16em;color:var(--dim)}
+.hero .chips span{border:1px solid var(--ln);padding:5px 9px}
+.hero .chips span b{color:var(--fg);font-weight:500}
+.sec{max-width:1100px;margin:0 auto;padding:56px 20px}
+.sec.in{animation:rise .5s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.sec.in{animation:none}}
+.sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--ln);padding-bottom:12px;margin-bottom:24px}
+.sec-head .num{font-size:10px;letter-spacing:.2em;color:var(--dim)}
+.sec-head h2{margin:0;font-size:20px;letter-spacing:.06em;font-weight:800;color:var(--fg)}
+.sec-head h2 em{font-style:normal;color:var(--acc)}
+.sec-head .rule{flex:1;border-top:1px solid var(--ln);transform:translateY(-4px)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.card{border:1px solid var(--ln);background:var(--bg);padding:16px;display:flex;flex-direction:column;gap:8px;min-height:120px}
+.card .tag{font-size:9px;letter-spacing:.2em;color:var(--dim)}
+.card .tag.ios{color:var(--acc2)}
+.card h3{margin:0;font-size:13px;letter-spacing:.12em;color:var(--acc);font-weight:800}
+.card p{margin:0;font-size:12px;line-height:1.55;color:var(--fg)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.stat{border:1px solid var(--ln);padding:16px}
+.stat b{display:block;font-size:30px;font-weight:800;color:var(--acc);letter-spacing:.02em}
+.stat span{font-size:10px;letter-spacing:.2em;color:var(--dim)}
+.countries{display:flex;flex-wrap:wrap;gap:6px;font-size:11px}
+.countries span{border:1px solid var(--ln);padding:5px 8px;color:var(--fg)}
+.countries span i{font-style:normal;color:var(--dim);margin-left:6px}
+.shots{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;align-items:start}
+.shots img{width:100%;border:1px solid var(--ln);display:block}
+.shots figure{margin:0}
+.shots figcaption{font-size:10px;letter-spacing:.16em;color:var(--dim);margin-top:8px}
+.app-note{margin-top:18px;font-size:12px;color:var(--fg);line-height:1.6;max-width:720px}
+.term{border:1px solid var(--ln);background:var(--bg);padding:14px 16px;font-size:12px;line-height:1.7;overflow-x:auto}
+.term .p{color:var(--acc)}.term .c{color:var(--dim)}
+.site-foot{max-width:1100px;margin:0 auto;padding:40px 20px 60px;border-top:1px solid var(--ln);display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;font-size:10px;letter-spacing:.14em;color:var(--dim)}
+.site-foot a{margin-right:14px}
+/* ---- interstitial: one full-page house ad on arrival, with a countdown ---- */
+.gate{position:fixed;inset:0;z-index:100;background:color-mix(in srgb,var(--bg0) 92%,transparent);display:flex;align-items:center;justify-content:center;padding:20px}
+.gate-box{width:min(640px,100%);border:1px solid var(--ln);background:var(--bg);padding:18px;display:flex;flex-direction:column;gap:14px;position:relative}
+.gate-box .badge{position:absolute;top:-1px;left:-1px;font-size:9px;letter-spacing:.2em;padding:3px 7px;border:1px solid var(--ln);background:var(--bg0);color:var(--dim)}
+.gate-box .house{display:flex;flex-direction:column;gap:8px;padding:18px 6px 6px;color:inherit}
+.gate-box .house img{width:100%;display:block}
+.gate-box .kicker{font-size:10px;letter-spacing:.2em;color:var(--dim)}
+.gate-box .title{font-size:24px;font-weight:800;letter-spacing:.04em;color:var(--fg)}
+.gate-box .line{font-size:13px;line-height:1.5;color:var(--fg)}
+.gate-box .cta{color:var(--acc);font-size:12px;letter-spacing:.14em;font-weight:700}
+.gate-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;border-top:1px solid var(--ln);padding-top:12px;font-size:10px;letter-spacing:.16em;color:var(--dim)}
+.gate-foot button{border:1px solid var(--ln);color:var(--dim);padding:8px 12px;font-size:11px;letter-spacing:.14em}
+.gate-foot button.ready{border-color:var(--acc);color:var(--acc)}
