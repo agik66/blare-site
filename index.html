@@ -4,40 +4,179 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Blare — internet radio, terminal style</title>
-<meta name="description" content="Blare: a terminal-style internet radio player for iPhone and iPad with a live FFT spectrum of the stream, FIND across 8,000 stations, MIX auto-tuner and a station globe.">
+<meta name="description" content="Blare: a terminal-style internet radio player with a live FFT spectrum of the stream. FIND artists across 8,000 stations, MIX auto-tuner, station globe, themes. The same app as on iPhone, in your browser.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="blare.css">
+<link rel="stylesheet" href="blare.css?v=1788503715">
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js" defer></script>
 </head>
 <body>
 <div class="page">
-  <main class="doc">
+
+  <aside class="ad ad-leaderboard" data-slot="web-leaderboard" aria-label="Advertisement" hidden></aside>
+
+  <main class="phone" id="app">
+
     <header class="topbar">
       <div class="wordmark">BLARE <span class="logo" aria-hidden="true">▞▞▞</span></div>
-      <div class="status"><span class="dot"></span><span>STANDBY</span></div>
+      <div class="status"><span class="dot" id="dot"></span><span id="status">STANDBY</span></div>
+      <button class="icon" id="themeBtn" title="Next theme" aria-label="Next theme">◐</button>
+      <button class="icon" id="stageBtn" title="Landscape stage" aria-label="Landscape stage">⟳</button>
+      <button class="icon dim" id="settingsBtn" title="Settings" aria-label="Settings">⚙</button>
     </header>
-    <article class="doc-body">
-      <h1>INTERNET RADIO, TERMINAL STYLE</h1>
-      <p>Blare is a radio player for iPhone and iPad. It tunes more than 8,000 stations, shows what the station says is playing, and draws a real spectrum of the audio you hear. Nothing is faked: when a station publishes no title, Blare says so.</p>
-      <h2>WHAT IT DOES</h2>
-      <ul>
-        <li><strong>PLAY</strong> — the station, its live title and a 16-band FFT visualiser in six modes.</li>
-        <li><strong>FIND</strong> — type an artist, see which stations have been playing them.</li>
-        <li><strong>MIX</strong> — an auto-tuner that hops stations, optionally inside a genre or country.</li>
-        <li><strong>LIB</strong> — the catalog by genre and country, with a globe of station positions.</li>
-        <li><strong>HIST</strong> — what you heard, where.</li>
-        <li>Siri and Shortcuts, CarPlay, a ten-band equaliser with your own presets, eleven themes.</li>
-      </ul>
-      <h2>PRICE</h2>
-      <p>Free. Small boxes show the developer's own products; a one-time purchase removes them. No accounts, no tracking — see the <a href="privacy.html">privacy policy</a>.</p>
-      <h2>STATUS</h2>
-      <p class="dim">App Store submission in progress. This page is temporary; the full web player will live here later.</p>
-    </article>
-    <nav class="doc-nav">
-      <a href="privacy.html">PRIVACY</a><a href="terms.html">TERMS</a><a href="support.html">SUPPORT</a>
+
+    <section class="screen hidden" id="screen-find">
+      <div class="search"><span class="acc">⌕</span><input id="findQ" placeholder="ARTIST NAME" autocomplete="off"></div>
+      <div class="scope dim" id="findScope"></div>
+      <div class="box dim" id="findReading">READING NOTHING — stream titles are not exposed to a browser, so the live tier lives in the iOS app</div>
+      <div id="findBody"></div>
+      <aside class="ad ad-inline" data-slot="web-find" aria-label="Advertisement" hidden></aside>
+    </section>
+
+    <section class="screen hidden" id="screen-mix">
+      <div class="panel" id="mixPanel"></div>
+      <div class="label">HOP LOG</div>
+      <ol class="rows" id="mixLog"></ol>
+    </section>
+
+    <section class="screen" id="screen-play">
+      <div class="card">
+        <div class="card-head">
+          <div class="station-name" id="stationName">—</div>
+          <div class="kind">[RADIO]</div>
+          <button class="star" id="starBtn" aria-label="Favourite">☆</button>
+        </div>
+        <div class="title-line"><span class="note">♫</span> <span id="title">NOTHING PLAYING</span></div>
+        <div class="meta-line">
+          <span id="elapsed">0:00 / --:--</span>
+          <span id="playstate" class="dim">■ STOPPED (tap ▶)</span>
+        </div>
+        <div class="spectrum"><canvas id="spec" width="10" height="150"></canvas></div>
+        <div class="caption" id="caption">SPECTRUM AT REST · NOTHING PLAYING</div>
+        <div class="stream-line">
+          <span id="streamState" class="warn">———— STOPPED ————</span>
+          <span class="dim" id="kbps">↓ -- KB/s</span>
+        </div>
+      </div>
+      <div class="vis">
+        <span class="label">VIS</span>
+        <div class="segments" id="visSegs" role="slider" aria-label="Visualiser mode"></div>
+        <span class="mode acc" id="visName">MATRIX</span>
+        <span class="vis-icon" aria-hidden="true">◉</span>
+      </div>
+      <div class="transport">
+        <button class="tbtn" id="prevBtn">◂◂ PREV</button>
+        <button class="tbtn play" id="playBtn" aria-label="Play">▶</button>
+        <button class="tbtn" id="nextBtn">NEXT ▸▸</button>
+      </div>
+      <div class="volume">
+        <span class="label">VOL</span>
+        <input type="range" id="vol" min="0" max="100" value="80" aria-label="Volume">
+        <span class="dim" id="volPct">80%</span>
+      </div>
+      <div class="list-box">
+        <div class="list-head">
+          <span class="dim">SRC <span class="acc2">[RADIO]</span> <span id="pos">–/–</span></span>
+          <button class="src" id="libBtn">≡ SRC</button>
+        </div>
+        <ol class="rows" id="rows"></ol>
+        <button class="open-all" id="openAll">≡ OPEN FULL LIST ▸</button>
+      </div>
+    </section>
+
+    <section class="screen hidden" id="screen-lib">
+      <div class="seg2"><button class="segbtn on" data-view="list">≡ LIST</button><button class="segbtn" data-view="map">◐ MAP</button></div>
+      <div class="search"><span class="acc">⌕</span><input id="q" placeholder="STATION NAME" autocomplete="off"></div>
+      <div class="note dim" id="libSearchNote"></div>
+      <div class="chips"><span class="label">SHOW</span><button class="chip acc2" id="favOnly">★ FAVOURITES</button><button class="chip" id="npOnly">NOW-PLAYING</button></div>
+      <div class="chips wrap" id="genreChips"><span class="label">GENRE</span></div>
+      <div class="chips wrap" id="countryChips"><span class="label">COUNTRY</span></div>
+      <aside class="ad ad-inline" data-slot="web-inline" aria-label="Advertisement" hidden></aside>
+      <div id="libList">
+        <div class="col-head"><span>STATION</span><span>CC · KBPS · NP</span></div>
+        <div class="legend dim">NP = the station advertised a now-playing feed when the catalog was made. Blare never checks whether a station is on air.</div>
+        <ol class="rows lib" id="libRows"></ol>
+        <button class="open-all" id="libMore">▾ SHOW MORE</button>
+        <div class="dim center" id="libNote"></div>
+      </div>
+      <div id="libMap" class="hidden">
+        <div class="globe-box"><canvas id="globe"></canvas>
+          <div class="globe-zoom"><button id="zoomIn" aria-label="Zoom in">+</button><button id="zoomOut" aria-label="Zoom out">−</button></div>
+        </div>
+        <div class="dim note" id="globeNote"></div>
+        <div class="station-card hidden" id="globeCard"></div>
+      </div>
+    </section>
+
+    <section class="screen hidden" id="screen-hist">
+      <div class="label">STATIONS HEARD · 7-DAY LOG</div>
+      <div class="note dim">The browser hears the station, not the song: stream titles are not exposed to web pages. The iOS app logs tracks.</div>
+      <ol class="rows" id="histRows"></ol>
+      <div class="chips"><button class="chip" id="histClear">CLEAR LOG</button><button class="chip" id="histExport">⤓ EXPORT AS BLARE-L CODE</button></div>
+      <div class="dim" id="histMsg"></div>
+    </section>
+
+    <section class="screen hidden" id="screen-set">
+      <div class="label">THEME</div>
+      <div class="themes" id="themes"></div>
+      <div class="label">BUILD YOUR OWN · GENERATORS</div>
+      <div class="chips wrap" id="genChips"></div>
+      <div class="label">CUSTOM</div>
+      <div class="custom" id="customEditor"></div>
+      <div class="label">SHARE</div>
+      <div class="chips wrap"><button class="chip" id="copyTheme">⇪ COPY THEME CODE</button><button class="chip" id="copyList">⇪ COPY STATION LIST</button></div>
+      <div class="search"><input id="importCode" placeholder="PASTE A BLARE-CODE" autocomplete="off"><button class="chip" id="importBtn">IMPORT</button></div>
+      <div class="dim" id="shareMsg"></div>
+      <div class="label">INSTRUMENT</div>
+      <div class="chips"><span class="label">DENSITY</span><button class="chip" data-density="comfortable">COMFORTABLE</button><button class="chip" data-density="compact">COMPACT</button></div>
+      <div class="chips"><span class="label">SCREEN</span><button class="chip" id="scanlines">SCANLINES</button></div>
+      <div class="chips wrap" id="patternChips"><span class="label">PATTERN</span></div>
+      <div class="label">VISUALISER</div>
+      <div class="chips"><button class="chip" id="analyseToggle">ANALYSE THE STREAM</button></div>
+      <div class="note dim">The FFT runs on streams whose server allows cross-origin reads. Others get a generated pattern, said so in the caption.</div>
+      <div class="label">ADS</div>
+      <div class="note dim">The boxes marked AD carry the developer's own products and, when configured, paid units. The iOS app sells an ad-free purchase; on the web there is no purchase, so the boxes stay.</div>
+      <div class="about dim" id="footer"></div>
+      <div class="store dim">▸ BLARE FOR iPHONE — APP STORE SUBMISSION IN PROGRESS</div>
+    </section>
+
+    <nav class="tabs">
+      <button class="tab" data-tab="find"><span>⌕</span>FIND</button>
+      <button class="tab" data-tab="mix"><span>∞</span>MIX</button>
+      <button class="tab on" data-tab="play"><span>▶</span>PLAY</button>
+      <button class="tab" data-tab="lib"><span>≡</span>LIB</button>
+      <button class="tab" data-tab="hist"><span>↻</span>HIST</button>
     </nav>
   </main>
+
+  <aside class="ad ad-side" data-slot="web-side" aria-label="Advertisement" hidden></aside>
+
+  <div class="stage hidden" id="stage">
+    <canvas id="stageSpec"></canvas>
+    <div class="stage-scrim" id="stageScrim"></div>
+    <div class="stage-top">
+      <div class="wordmark small">BLARE <span class="logo" aria-hidden="true">▞▞▞</span></div>
+      <div class="stage-station" id="stageStation">—</div>
+      <div class="stage-caption" id="stageCaption"></div>
+    </div>
+    <div class="stage-mid">
+      <div class="stage-title" id="stageTitle">NOTHING PLAYING</div>
+      <div class="stage-sub" id="stageSub"></div>
+    </div>
+    <div class="stage-bottom" id="stageControls">
+      <span class="dim" id="stageClock"></span>
+      <button class="tbtn" id="sPrev">◂◂</button>
+      <button class="tbtn play" id="sPlay">▶</button>
+      <button class="tbtn" id="sNext">▸▸</button>
+      <button class="tbtn" id="sOpts">⚙</button>
+      <button class="tbtn" id="sExit">⟳ EXIT</button>
+    </div>
+    <div class="stage-opts hidden" id="stageOpts"></div>
+  </div>
 </div>
+<script src="blare.js?v=1788503715"></script>
+<script src="app.js?v=1788503715"></script>
 </body>
 </html>
