@@ -25,9 +25,9 @@
     </nav>
     <article class="doc-body">
 <h1>PRIVACY POLICY</h1>
-<p class="dim">Effective 12 November 2026 · applies to the Blare iOS app and the Blare web player</p>
+<p class="dim">Effective 13 November 2026 · applies to the Blare iOS app and the Blare web player</p>
 
-<p>Blare is an internet-radio player. It has no user accounts, no analytics, no advertising SDKs and no tracking. We do not collect, store or sell personal data. This page lists everything the software keeps and everyone it talks to, so you can check the claim.</p>
+<p>Blare is an internet-radio player. It has no user accounts, no analytics, no advertising SDKs and no tracking. We do not store or sell personal data, and we keep no record of what you play or search for. This page lists everything the software keeps and everyone it talks to, so you can check the claim.</p>
 
 <h2>WHAT STAYS ON YOUR DEVICE</h2>
 <p>The following is stored only locally (iOS app: on the phone; web: in your browser's local storage) and is never sent to us:</p>
@@ -47,11 +47,12 @@
   <tr><td>Station websites (favicons)</td><td>When a station is shown</td><td>The station's own logo is loaded from its site</td></tr>
   <tr><td>GitHub (raw.githubusercontent.com)</td><td>At launch and roughly every few hours</td><td>Downloads the list of house ads (a small JSON file)</td></tr>
   <tr><td>Apple</td><td>iOS only, when you buy or restore “Remove ads”</td><td>In-app purchase via StoreKit; Apple's own privacy policy applies</td></tr>
+  <tr><td>Blare live index (live.syenit.eu, our server, reached through Cloudflare)</td><td>iOS only, when you type a name in FIND while ON AIR NOW is switched on (it is on by default)</td><td>Answers on which stations that name is playing right now. The request carries the text you typed, the app's name and version, and the standard metadata of any web request; no account, no device identifier, no cookie. The server answers from memory and writes no request log, so neither the text nor your IP address is kept by us. Cloudflare carries the request to our server and handles it under its own privacy policy. Settings → LIVE INDEX switches it off; FIND then uses only the index built into the app</td></tr>
   <tr><td>Google Fonts, jsDelivr</td><td>Web only, on page load</td><td>Delivers the typeface and the globe library</td></tr>
   <tr><td>Blare relay (Cloudflare Worker)</td><td>Web only, when a station blocks the browser or streams over http://</td><td>Relays the stream so it can play and be analysed. On every “play” the page also sends one anonymous event (station id, platform); the relay stores the day, the country it derives from the connection and the station — never the IP, no id, no cookie</td></tr>
   <tr><td>Google AdSense</td><td>Web only, and only if paid ad units are enabled in the ad manifest</td><td>Serves paid ads and may set cookies; see “Advertising”</td></tr>
 </table>
-<p>We do not run a server of our own: nothing you do is logged by us.</p>
+<p>We run one server of our own, the live index in the table above. It answers a search and forgets it. Nothing you play or search for is logged by us.</p>
 
 <h2>ADVERTISING</h2>
 <p>The boxes marked AD show the developer's own products (“house ads”). They are plain images listed in a public JSON file; showing them sends no data anywhere except the request that downloads that file and the image.</p>
@@ -65,7 +66,7 @@
 <p>None. The visualiser analyses the audio of the stream being played, not the microphone. The station globe uses the station's published coordinates, not your location.</p>
 
 <h2>CHILDREN</h2>
-<p>Blare is not directed at children and collects no data from anyone, of any age.</p>
+<p>Blare is not directed at children and keeps no data about anyone, of any age.</p>
 
 <h2>YOUR RIGHTS (GDPR)</h2>
 <p>Because we hold no personal data about you, there is nothing for us to access, correct, export or erase. Everything the software keeps is under your control on your own device. If you believe we do hold something, write to the address on the Support page and we will answer within 30 days.</p>

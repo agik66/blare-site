@@ -430,7 +430,7 @@ function importCode(raw) {
   const code = raw.trim();
   try {
     if (code.startsWith('BLARE-T:')) { const t = JSON.parse(atob(code.slice(8))); if (!KEY_ORDER.every(k => /^#[0-9a-fA-F]{6}$/.test(t[k] || ''))) throw 0; B.THEMES.push({ id: 'imported-' + Date.now(), name: 'IMPORTED', v: t }); S.theme = B.THEMES[B.THEMES.length - 1].id; B.store.set('theme', S.theme); B.applyTheme(); renderSet(); return 'THEME IMPORTED'; }
-    if (code.startsWith('BLARE-L:')) { const l = JSON.parse(atob(code.slice(8))); if (!Array.isArray(l)) throw 0; let n = 0; for (const i of l) { const st = S.stations[i]; if (st && !S.favs.has(st.u)) { S.favs.add(st.u); n++; } } B.store.set('favs', [...S.favs]); B.rebuildQueue(); render(); return `${n} STATIONS STARRED FROM THE CODE`; }
+    if (code.startsWith('BLARE-L:')) { const l = JSON.parse(atob(code.slice(8))); if (!Array.isArray(l)) throw 0; let n = 0; for (const i of l) { const st = (S.byRow || S.stations)[i]; if (st && !S.favs.has(st.u)) { S.favs.add(st.u); n++; } } B.store.set('favs', [...S.favs]); B.rebuildQueue(); render(); return `${n} STATIONS STARRED FROM THE CODE`; }
   } catch (e) { return 'CODE IS CORRUPT'; }
   return 'INVALID CODE — expected BLARE-T: or BLARE-L:';
 }
@@ -516,7 +516,10 @@ async function boot() {
   loadAds(); B.applyTheme(); wire(); renderSet();
   try {
     const [cat, idx] = await Promise.all([fetch('catalog.json').then(r => r.json()), fetch('find.json').then(r => r.json()).catch(() => null)]);
-    S.stations = cat.stations.map(B.stationFromRow); S.byUrl = new Map(S.stations.map(s => [s.u, s])); FIND = idx;
+    // A row the app does not list (off air, hidden) is null in catalog.json. It keeps its place:
+    // a BLARE-L code is a list of row numbers, so S.byRow counts every row and S.stations only the listed ones.
+    S.byRow = cat.stations.map((r, i) => r ? B.stationFromRow(r, i) : null); S.stations = S.byRow.filter(Boolean);
+    S.byUrl = new Map(S.stations.map(s => [s.u, s])); FIND = idx;
   } catch (e) { $('stationName').textContent = 'CATALOG FAILED TO LOAD'; }
   B.rebuildQueue();
   const last = B.store.get('last', null), i = last ? S.queue.findIndex(s => s.u === last) : 0;
