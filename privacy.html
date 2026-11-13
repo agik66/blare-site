@@ -33,7 +33,7 @@
 <p>The following is stored only locally (iOS app: on the phone; web: in your browser's local storage) and is never sent to us:</p>
 <ul>
   <li>starred stations, listening history and the MIX filter (the iOS app can switch the history off and erase it: Settings → HISTORY),</li>
-  <li>settings: theme, visualiser mode, equaliser presets, layout options,</li>
+  <li>settings: theme, visualiser mode, equaliser presets, layout options, the ON AIR NOW switch,</li>
   <li>a cached copy of the house-ad list and of the station catalog,</li>
   <li>on iOS, a cached flag saying whether the ad-free purchase is owned.</li>
 </ul>
@@ -47,7 +47,7 @@
   <tr><td>Station websites (favicons)</td><td>When a station is shown</td><td>The station's own logo is loaded from its site</td></tr>
   <tr><td>GitHub (raw.githubusercontent.com)</td><td>At launch and roughly every few hours</td><td>Downloads the list of house ads (a small JSON file)</td></tr>
   <tr><td>Apple</td><td>iOS only, when you buy or restore “Remove ads”</td><td>In-app purchase via StoreKit; Apple's own privacy policy applies</td></tr>
-  <tr><td>Blare live index (live.syenit.eu, our server, reached through Cloudflare)</td><td>iOS only, when you type a name in FIND while ON AIR NOW is switched on (it is on by default)</td><td>Answers on which stations that name is playing right now. The request carries the text you typed, the app's name and version, and the standard metadata of any web request; no account, no device identifier, no cookie. The server answers from memory and writes no request log, so neither the text nor your IP address is kept by us. Cloudflare carries the request to our server and handles it under its own privacy policy. Settings → LIVE INDEX switches it off; FIND then uses only the index built into the app</td></tr>
+  <tr><td>Blare live index (live.syenit.eu, our server, reached through Cloudflare)</td><td>iOS app and web player, when you type a name in FIND while ON AIR NOW is switched on (it is on by default)</td><td>Answers on which stations that name is playing right now. The request carries the text you typed and the standard metadata of any web request (the app's name and version, or what your browser sends with any request); no account, no device identifier, no cookie. The server answers from memory and writes no request log, so neither the text nor your IP address is kept by us. Cloudflare carries the request to our server and handles it under its own privacy policy. Settings → LIVE INDEX in the app, or SET → LIVE INDEX on the web, switches it off; FIND then uses only the built-in index of past scans</td></tr>
   <tr><td>Google Fonts, jsDelivr</td><td>Web only, on page load</td><td>Delivers the typeface and the globe library</td></tr>
   <tr><td>Blare relay (Cloudflare Worker)</td><td>Web only, when a station blocks the browser or streams over http://</td><td>Relays the stream so it can play and be analysed. On every “play” the page also sends one anonymous event (station id, platform); the relay stores the day, the country it derives from the connection and the station — never the IP, no id, no cookie</td></tr>
   <tr><td>Google AdSense</td><td>Web only, and only if paid ad units are enabled in the ad manifest</td><td>Serves paid ads and may set cookies; see “Advertising”</td></tr>

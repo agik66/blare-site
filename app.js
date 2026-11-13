@@ -141,6 +141,7 @@ function renderPlay() {
   document.querySelectorAll('[data-density]').forEach(b => b.classList.toggle('on', b.dataset.density === S.density));
   $('scanlines').classList.toggle('on', S.scan);
   $('analyseToggle').classList.toggle('on', S.analyse);
+  $('liveToggle').classList.toggle('on', liveOn); $('liveToggle').textContent = liveOn ? 'ON AIR NOW · ON' : 'ON AIR NOW · OFF';
   document.querySelectorAll('#patternChips .chip').forEach(b => b.classList.toggle('on', b.dataset.p === S.pattern));
   // stage mirrors
   $('stageStation').textContent = st ? `${st.n.toUpperCase()} — ${(st.g || 'RADIO').toUpperCase().split('/')[0]} · ${B.countryName(st.c).toUpperCase()}` : 'NO STATION';
@@ -285,6 +286,55 @@ function ago(at) { const m = Math.round((Date.now() - at) / 60000); if (m < 60) 
 
 // ================================================================ FIND
 let FIND = null, findQ = '', findTimer = 0;
+
+// The live index — the app's TIER S. Our server reads the title of every
+// catalogue station that publishes one and answers "where is this name on air
+// now". The page sends the typed text and nothing else (no cookie, no
+// referrer); the answer is catalogue UUIDs, and the stream address always
+// comes from the catalogue this page loaded, never from the server.
+const LIVE_BASE = 'https://live.syenit.eu';
+let liveOn = !B.store.get('live-off', false), liveTimer = 0, liveSeq = 0;
+let live = { q: '', state: 'idle', rows: [], why: '', at: 0 };
+const liveAge = (s) => s < 90 ? `${Math.max(1, s)} s` : `${Math.round(s / 60)} min`;
+function liveAsk(text) {
+  const q = text.trim().toLowerCase();
+  if (!liveOn || q.length < 3) { clearTimeout(liveTimer); liveSeq++; live = { q, state: 'idle', rows: [], why: '', at: 0 }; return; }
+  // The same question is asked once; an answer older than a minute is asked again.
+  if (q === live.q && (live.state === 'asking' || Date.now() - live.at < 60000)) return;
+  clearTimeout(liveTimer); const seq = ++liveSeq;
+  live = { q, state: 'asking', rows: [], why: '', at: 0 };
+  liveTimer = setTimeout(async () => {
+    const ctl = 'AbortController' in window ? new AbortController() : null, guard = ctl && setTimeout(() => ctl.abort(), 6000);
+    try {
+      const r = await fetch(`${LIVE_BASE}/now?q=${encodeURIComponent(q)}`, { signal: ctl ? ctl.signal : undefined, credentials: 'omit', referrerPolicy: 'no-referrer' });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const d = await r.json(); if (seq !== liveSeq) return;
+      const seen = new Set(), rows = [];
+      for (const h of d.stations || []) {
+        // Only stations this page lists, once each, and only with a title to show.
+        const st = S.byUuid && S.byUuid.get(h.uuid); if (!st || seen.has(st.u) || !(h.artist || h.track)) continue;
+        seen.add(st.u); rows.push({ st, artist: h.artist || '', track: h.track || '', age: Math.max(0, h.age_s | 0) });
+      }
+      live = { q, state: 'answered', rows, why: '', at: Date.now() };
+    } catch (e) {
+      if (seq !== liveSeq) return;
+      const why = e && e.name === 'AbortError' ? 'NO ANSWER IN 6 S' : navigator.onLine === false ? 'YOU ARE OFFLINE' : /^HTTP/.test(e && e.message) ? e.message : 'NO CONNECTION';
+      live = { q, state: 'unreachable', rows: [], why, at: Date.now() - 50000 };   // retried after 10 s
+    } finally { clearTimeout(guard); }
+    if (!$('screen-find').classList.contains('hidden')) renderFind();
+  }, 350);
+}
+function liveTierHTML(q) {
+  if (!liveOn) return `<div class="label">● ON AIR NOW · OFF</div><div class="note dim">the live index is switched off in SET — FIND answers from past scans only</div>`;
+  if (q.length < 3) return `<div class="label">● ON AIR NOW</div><div class="note dim">three letters or more and the live index is asked</div>`;
+  if (live.q !== q.toLowerCase() || live.state === 'asking' || live.state === 'idle') return `<div class="label">● ON AIR NOW · ASKING THE LIVE INDEX…</div>`;
+  if (live.state === 'unreachable') return `<div class="label" style="color:var(--warn)">● ON AIR NOW · LIVE INDEX UNREACHABLE — ${esc(live.why)}</div><div class="note dim">not the same as “nobody plays this” — the past scans below still answer</div>`;
+  const n = live.rows.length;
+  if (!n) return `<div class="label">● ON AIR NOW — 0 ACROSS THE CATALOGUE</div><div class="note dim">no station the live index reads was playing this at its last check</div>`;
+  return `<div class="label" style="color:var(--ok)">● ON AIR NOW — ${n} ACROSS THE CATALOGUE · FRESHEST ${liveAge(live.rows[0].age).toUpperCase()}</div><ol class="rows">`
+    + live.rows.map(h => `<li class="sug" data-u="${esc(h.st.u)}"><div class="row" style="display:flex;justify-content:space-between;gap:8px"><span class="name" style="flex:1">${esc(h.st.n)}</span><span class="meta">${esc(h.st.c || '—')} · ${h.st.b || '—'}k</span></div>
+    <span class="reason" style="color:var(--fg)">${esc([h.artist, h.track].filter(Boolean).join(' — '))}</span><span class="reason"${h.age < 300 ? ' style="color:var(--ok)"' : ''}>LIVE INDEX · read ${liveAge(h.age)} ago</span><div style="display:flex;justify-content:flex-end"><button class="tune" data-tune="${esc(h.st.u)}">TUNE</button></div></li>`).join('') + '</ol>';
+}
 const watchlist = new Set(B.store.get('watch', ['ED SHEERAN', 'DEPECHE MODE', 'TAYLOR SWIFT']));
 function normKey(name) {
   let t = name.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '');
@@ -330,13 +380,14 @@ function renderFind() {
   if (!FIND) { $('findScope').textContent = 'LOADING INDEX…'; return; }
   $('findScope').textContent = `INDEX ${FIND.s.length} STATIONS / ${FIND.r} SCANS · ${FIND.a.length} ARTISTS · ${watchlist.size} ON WATCHLIST`;
   const q = findQ.trim().toUpperCase(), body = $('findBody');
+  liveAsk(findQ);
   if (!q) {
     body.innerHTML = `<div class="label">WATCHLIST — ${watchlist.size} ARTISTS</div>` + [...watchlist].map(n => `<div class="watch"><span class="name">${esc(n)}</span><span class="st">IN INDEX · ${(FIND.a.find(a => a[0] === normKey(n)) || [0, 0, []])[2].length} STATIONS</span><button class="chip" data-unwatch="${esc(n)}">×</button></div>`).join('')
-      + `<div class="note dim">Watching here means "remember the name": the live watch — hopping when a station announces the artist — needs stream titles, which browsers do not expose. The iOS app does it.</div>`;
+      + `<div class="note dim">Watching here means "remember the name". Type it above to ask the live index where it is on air now; hopping by itself when a station announces the artist is what the iOS app does.</div>`;
     return;
   }
   const key = normKey(q), artist = FIND.a.find(a => a[0] === key);
-  let html = `<div class="label">● ON AIR NOW — 0</div><div class="note dim">live matching needs stream titles — the iOS app reads them, a browser cannot</div>`;
+  let html = liveTierHTML(q);
   html += `<button class="chip acc" data-watch="${esc(q)}">${watchlist.has(q) ? '✓ WATCHING' : '+ WATCH'} “${esc(q)}”</button>`;
   if (artist && artist[2].length) {
     const rot = artist[2].filter(h => h[1] > 1), once = artist[2].filter(h => h[1] <= 1);
@@ -346,7 +397,9 @@ function renderFind() {
     const near = nearMatches(key), rows = [], seen = new Set();
     for (const a of near) { for (const h of [...a[2]].sort((x, y) => y[1] - x[1])) { if (rows.length >= 3 || seen.has(h[0])) continue; const st = findStation(h[0]); if (!st) continue; seen.add(h[0]); rows.push(stationRowHTML(st, `seen playing ${a[1]}`, rows.length)); } if (rows.length >= 3) break; }
     if (rows.length < 3) for (const [idx, n] of broadest(12)) { if (rows.length >= 3 || seen.has(idx)) continue; const st = findStation(idx); if (!st) continue; seen.add(idx); rows.push(stationRowHTML(st, `${n} artists indexed here`, rows.length)); }
-    html += `<div class="zero"><div class="big">0</div><div class="tier">LIVE   0 of 0 station being read\nINDEX  0 of ${FIND.a.length} artists across ${FIND.s.length} stations, ${FIND.r} scans</div><div class="msg">No station in the index has been seen playing <span class="acc">${esc(q)}</span>.</div><div class="note dim">The index is young: ${FIND.r} scans of ${FIND.s.length} stations. It only knows what it heard, so a station that has never been caught playing them is not a station that never plays them.</div></div>`;
+    const liveKnown = liveOn && live.q === q.toLowerCase() && live.state === 'answered', liveN = liveKnown ? live.rows.length : 0;
+    const liveLine = !liveOn ? 'live index off' : q.length < 3 ? 'not asked — under three letters' : liveKnown ? `${liveN} on air at the last check` : live.state === 'unreachable' ? 'live index unreachable' : 'asking the live index…';
+    html += `<div class="zero">${liveN ? '' : '<div class="big">0</div>'}<div class="tier">LIVE   ${liveLine}\nINDEX  0 of ${FIND.a.length} artists across ${FIND.s.length} stations, ${FIND.r} scans</div><div class="msg">No station in the index of past scans has been seen playing <span class="acc">${esc(q)}</span>.</div><div class="note dim">The index is young: ${FIND.r} scans of ${FIND.s.length} stations. It only knows what it heard, so a station that has never been caught playing them is not a station that never plays them.</div></div>`;
     html += `<div class="label">CLOSE ON THE DIAL — ${near.length ? 'NEAR MATCHES IN THE INDEX' : 'WHERE BLARE CATCHES THE MOST'}</div><ol class="rows">${rows.join('')}</ol>`;
   }
   body.innerHTML = html;
@@ -494,6 +547,7 @@ function wire() {
   $('importBtn').onclick = () => { $('shareMsg').textContent = importCode($('importCode').value); };
   $('scanlines').onclick = () => { S.scan = !S.scan; B.store.set('scan', S.scan); B.applyTheme(); };
   $('analyseToggle').onclick = () => { S.analyse = !S.analyse; B.store.set('analyse', S.analyse); renderPlay(); };
+  $('liveToggle').onclick = () => { liveOn = !liveOn; B.store.set('live-off', !liveOn); live.q = ''; renderPlay(); renderFind(); };
   document.querySelectorAll('[data-density]').forEach(b => b.onclick = () => { S.density = b.dataset.density; B.store.set('density', S.density); B.applyTheme(); });
   document.querySelectorAll('.tab').forEach(b => b.onclick = () => showTab(b.dataset.tab));
   const rowClick = (list) => (e) => {
@@ -519,7 +573,7 @@ async function boot() {
     // A row the app does not list (off air, hidden) is null in catalog.json. It keeps its place:
     // a BLARE-L code is a list of row numbers, so S.byRow counts every row and S.stations only the listed ones.
     S.byRow = cat.stations.map((r, i) => r ? B.stationFromRow(r, i) : null); S.stations = S.byRow.filter(Boolean);
-    S.byUrl = new Map(S.stations.map(s => [s.u, s])); FIND = idx;
+    S.byUrl = new Map(S.stations.map(s => [s.u, s])); S.byUuid = new Map(S.stations.map(s => [s.uuid, s])); FIND = idx;
   } catch (e) { $('stationName').textContent = 'CATALOG FAILED TO LOAD'; }
   B.rebuildQueue();
   const last = B.store.get('last', null), i = last ? S.queue.findIndex(s => s.u === last) : 0;
