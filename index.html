@@ -48,7 +48,7 @@
     <section class="screen hidden" id="screen-find">
       <div class="search"><span class="acc">⌕</span><input id="findQ" placeholder="ARTIST NAME" autocomplete="off"></div>
       <div class="scope dim" id="findScope"></div>
-      <div class="box dim" id="findReading">READING NOTHING — stream titles are not exposed to a browser, so the live tier lives in the iOS app</div>
+      <div class="box dim" id="findReading">A browser cannot read the title of the stream it plays, so this page does not watch the station you are on. ON AIR NOW below is our live index: the titles of about 1,700 stations, read every few minutes.</div>
       <div id="findBody"></div>
       <aside class="ad ad-inline" data-slot="web-find" aria-label="Advertisement" hidden></aside>
     </section>
@@ -151,6 +151,9 @@
       <div class="chips"><span class="label">DENSITY</span><button class="chip" data-density="comfortable">COMFORTABLE</button><button class="chip" data-density="compact">COMPACT</button></div>
       <div class="chips"><span class="label">SCREEN</span><button class="chip" id="scanlines">SCANLINES</button></div>
       <div class="chips wrap" id="patternChips"><span class="label">PATTERN</span></div>
+      <div class="label">LIVE INDEX</div>
+      <div class="chips"><button class="chip" id="liveToggle">ON AIR NOW · ON</button></div>
+      <div class="note dim">FIND asks our server where a name is playing right now. It sends the text you type and nothing else; nothing is stored. Off: FIND answers from past scans only.</div>
       <div class="label">VISUALISER</div>
       <div class="chips"><button class="chip" id="analyseToggle">ANALYSE THE STREAM</button></div>
       <div class="note dim">The FFT runs on streams whose server allows cross-origin reads. Others get a generated pattern, said so in the caption.</div>
@@ -198,7 +201,7 @@
   <div class="sec-head"><span class="num">[01]</span><h2>./<em>features</em></h2><span class="rule"></span></div>
   <div class="grid">
     <div class="card"><span class="tag">WEB · iOS</span><h3>PLAY</h3><p>The station, its live title, and a 16-band FFT of the stream in six visualiser modes: matrix, bars, mirror, dots, scope, ASCII. The caption tells you when a stream cannot be measured.</p></div>
-    <div class="card"><span class="tag">WEB · iOS</span><h3>FIND</h3><p>Type an artist and see which stations have been playing them, built from what stations reported over time. The iOS app adds two live tiers: it reads the station you are on, and it asks our live index where the name is on air right now.</p></div>
+    <div class="card"><span class="tag">WEB · iOS</span><h3>FIND</h3><p>Type an artist and see where the name is on air right now, asked from our live index of about 1,700 stations, and which stations have been playing them, from what stations reported over time. The iOS app also reads the station you are on.</p></div>
     <div class="card"><span class="tag">WEB · iOS</span><h3>MIX</h3><p>An auto-tuner. It hops stations, optionally inside a genre or a country, and tells you why it picked each one.</p></div>
     <div class="card"><span class="tag">WEB · iOS</span><h3>LIB</h3><p>The catalog by genre and country, with flags, and a globe of every station that has a coordinate. Drag to spin, pinch to zoom.</p></div>
     <div class="card"><span class="tag">WEB · iOS</span><h3>HIST</h3><p>What you heard and where. Save a track so it survives the rolling log; saved tracks export as a playlist.</p></div>
